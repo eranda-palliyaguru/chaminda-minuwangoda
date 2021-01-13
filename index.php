@@ -205,27 +205,7 @@ $q->execute(array($model_amount,$model_id));
 				$date=date("Y-m-d");
 
 			?>
-
-
-
-
-
-
-
-
-
-
-
 	 <div class="row">
-
-
-
-
-
-
-
-
-
 	 <?php     $r=$_SESSION['SESS_LAST_NAME'];
 
 
