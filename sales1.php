@@ -245,25 +245,15 @@ include_once("sidebar.php");
                   </div>
 				</div>
 
-
-
               </div>
               </div>
 			  <input class="btn btn-danger" type="submit" value="Submit" >
 
 			  </form>
-
-
-
-
           <!-- /.box -->
-
         </div>
         <!-- /.col (left) -->
-
-
-
-            <!-- /.box-body -->
+          <!-- /.box-body -->
 
             </div>
           </div>

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-<?php 
+<?php
 include("head.php");
 include("connect.php");
 ?>
 <body class="hold-transition skin-blue sidebar-mini">
-<?php 
+<?php
 include_once("auth.php");
 $r=$_SESSION['SESS_LAST_NAME'];
 if($r =='Cashier'){
@@ -25,6 +25,10 @@ include_once("sidebar.php");
 	if ($co=="pu"){
 		$type_name = "purchase";
 		$type_color= "danger";
+	}
+	if ($co=="tr"){
+		$type_name = "Transfer";
+		$type_color= "warning";
 	}
 ?>
 
@@ -86,27 +90,30 @@ return false;
           <h3 class="box-title"><?php echo $type_name ?></h3>
         <!-- /.box-header -->
 		<div class="form-group">
-		
-        <div class="box-body">									  
- 
-	
+
+        <div class="box-body">
+
+      <!-- /.box -->
+
 <div class="form-group">
 	<div class="box-body">
 		<form method="post" action="sales_save.php">
-      <!-- /.box -->
-<input type="hidden" value="" name="type_q">
-<input value="com" name="type_q" type="checkbox"> Company
-		
+ <div class="checkbox">
+                  <label>
+					  <input type="hidden" value="" name="type_q">
+                    <input value="com" name="type_q" type="checkbox"> Company
+                  </label>
+                </div>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
 				  <div class="input-group">
 				   <div class="input-group-addon">
-					 <label>Product</label>  
+					 <label>Product</label>
                   </div>
-					  
+
                 <select class="form-control select2" name="name" style="width: 100%;" tabindex="1" autofocus >
-				 
+
 		<?php  $invo = $_GET['id'];
          $result = $db->prepare("SELECT * FROM product ");
 		$result->bindParam(':userid', $res);
@@ -120,27 +127,27 @@ return false;
 				</div>
 
 			  <div class="col-md-2">
-			  <div class="form-group">    
+			  <div class="form-group">
                 <div class="input-group date">
                   <div class="input-group-addon">
                     <label>Qty</label>
                   </div>
-                   <input type="number" class="form-control" name="qty" tabindex="2" >				   
-                </div>				
-        </div>	
+                   <input type="number" class="form-control" name="qty" tabindex="2" >
+                </div>
+        </div>
         </div>
 
 			  <div class="col-md-2">
 			  <div class="form-group">
                 <div class="input-group date">
                 <div class="input-group-addon">
-                    <label>Dis</label>
+                    <label>Dis %</label>
                   </div>
-                   <input type="number" class="form-control" name="dis" tabindex="2" >				   
-                </div>				
-        </div>		
+                   <input type="number" class="form-control" name="dis" tabindex="2" >
+                </div>
         </div>
-			  
+        </div>
+
 
 			  <div class="col-md-2">
 			  <div class="form-group">
@@ -148,9 +155,9 @@ return false;
                   <div class="input-group-addon">
                     <label>Price</label>
                   </div>
-                   <input type="number" class="form-control" name="price" tabindex="2" >				   
-                </div>				
-        </div>		
+                   <input type="number" class="form-control" name="price" tabindex="2" >
+                </div>
+        </div>
         </div>
 		<input type="hidden"  name="invoice" value="<?php echo $invo; ?>"  >
         <input class="btn btn-<?php echo $type_color ?>" type="submit" value="Submit" >
@@ -158,7 +165,7 @@ return false;
 			  </form>
               </div>
 
-	  
+
 
           <!-- /.box -->
 
@@ -171,13 +178,25 @@ return false;
 				<th>Dic (Rs.)</th>
                 <th>Price (Rs.)</th>
               </tr>
-				 <?php $total=0;
+				 <?php $total=0; $style="";
                 $result = $db->prepare("SELECT * FROM sales_list WHERE invoice_no = '$invo' ");
 		$result->bindParam(':userid', $res);
 		$result->execute();
 		for($i=0; $row = $result->fetch(); $i++){
+			$pro_id=$row['product_id'];
+
+$resultz = $db->prepare("SELECT * FROM product WHERE product_id = '$pro_id' ");
+$resultz->bindParam(':userid', $res);
+$resultz->execute();
+for($i=0; $rowz = $resultz->fetch(); $i++){
+$stock=$rowz['qty'];
+}
+if ($stock < 0) {
+$style='style="color:red" ';
+}
+
 	?>
-				 <tr  >
+				 <tr <?php echo $style; ?> >
 				     <td><?php echo $row['name']; ?></td>
 					 <td><?php echo $row['qty']; ?></td>
 					 <td><?php echo $row['dic']; ?></td>
@@ -187,19 +206,33 @@ return false;
 				 <?php  $total+=$row['price']; ?>
 				 </tr>
 				 <?php
-		}	?>
-			 </table> 
+		}
 
-			<h1>Rs <?php echo $total; ?>.00</h1>			</div>
+$result1 = $db->prepare("SELECT * FROM sales WHERE invoice_number='$invo' ");
+		$result1->bindParam(':userid', $a1);
+		$result1->execute();
+		for($i=0; $row1 = $result1->fetch(); $i++){
+		$adv=$row1['advance'];
+
+		}
+
+				 ?>
+			 </table>
+
+			<h3>Total Rs <?php echo $total; ?>.00 <br>
+			Advance Rs <?php echo $adv; ?>.00<br>
+			Balance Rs <?php echo $total-$adv; ?>.00</h3>
+
+	</div>
         </div>
         <!-- /.col (left) -->
 
-       
+
 <?php if ($co=="pu"){
 		?>
 <form method="post" action="save_purchase.php">
 	<div class="col-md-4">
-	<div class="input-group">              
+	<div class="input-group">
 			 <input type="hidden" class="form-control" name="total" value="<?php echo $total; ?>"  >
 			 <input type="hidden" class="form-control" name="id" value="<?php echo $invo; ?>"  >
 		<div class="input-group-addon">
@@ -207,14 +240,14 @@ return false;
                   </div>
 		<input type="text" class="form-control" name="invo_no"   >
 		 </div><br>
-		<div class="input-group"> 
+		<div class="input-group">
 	<div class="input-group-addon">
                     <label>Remarks</label>
                   </div>
 		<input type="text" class="form-control" name="remarks"   >
 		</div>
 	</div>
-	
+
 	<input class="btn btn-<?php echo $type_color ?>" type="submit" value="Save" >
 			</form>
 		<?php } 	?>
@@ -235,7 +268,7 @@ return false;
                       Card <i class="fa fa-credit-card"></i>
                     </label>
                   </div>
-                  
+
                 </div>
 	<div class="col-md-4">
 	<div class="input-group">
@@ -246,29 +279,126 @@ return false;
 			 <input type="hidden" class="form-control" name="invoice" value="<?php echo $invo; ?>"  >
                   <input class="btn btn-info" type="submit" value="Pay and Print" >
                 </div>
-              </div>	
+              </div>
 		</div>
 			</form>
 		<?php } ?>
-			<?php if ($co=="qt"){
+
+
+			<?php if ($co=="tr"){
 		?>
-<form method="post" action="save_qt.php">
+<form method="post" action="save_tr.php">
 	<div class="col-md-4">
-	<div class="input-group">              
+	<div class="input-group">
 			 <input type="hidden" class="form-control" name="total" value="<?php echo $total; ?>"  >
 			 <input type="hidden" class="form-control" name="invoice" value="<?php echo $invo; ?>"  >
-		<label>Vehicle No</label>
-			
-		<input type="text" name="vehicle_no"  class="form-control" data-inputmask='"mask": "AAA-9999"' data-mask required>
-			
+		<label>Note</label>
+		<input type="text" name="note"  class="form-control"  required>
+
 		 </div></div>
-	
+
+	<input class="btn btn-<?php echo $type_color ?>" type="submit" value="Transfer" >
+			</form>
+
+
+
+
+
+			<?php } if ($co=="qt"){
+		?>
+<form method="post" action="save_qt.php">
+
+			 <input type="hidden" class="form-control" name="total" value="<?php echo $total; ?>"  >
+			 <input type="hidden" class="form-control" name="invoice" value="<?php echo $invo; ?>"  >
+
+	<div class="col-md-4">
+              <div class="form-group">
+                <label>	Vehicle Number</label>
+				  <div class="input-group">
+				   <div class="input-group-addon">
+                    <i class="fa fa-motorcycle"></i>
+                  </div>
+                <input type="text" name="vehicle_no"  class="form-control" data-inputmask='"mask": "AAA-9999"' data-mask required>
+                  </div>
+                  </div>
+				</div>
+
+		<div class="col-md-4">
+              <div class="form-group">
+                <label>	Customer Name</label>
+				  <div class="input-group">
+				   <div class="input-group-addon">
+                    <i class="fa fa-user"></i>
+                  </div>
+                <input type="text" class="form-control" name="cus" required >
+                  </div>
+                  </div>
+				</div>
+
+	<div class="col-md-4">
+              <div class="form-group">
+                <label>	Comment</label>
+				  <div class="input-group">
+				   <div class="input-group-addon">
+                    <i class="fa fa-user"></i>
+                  </div>
+                <input type="text" class="form-control" name="comment" required >
+                  </div>
+                  </div>
+				</div>
+
+	<div class="col-md-4">
+	<div class="form-group">
+               <label>Model</label>
+
+                <div class="input-group date">
+                  <div class="input-group-addon">
+                    <i class="fa fa-arrow-down"></i>
+                  </div>
+                  <select class="form-control select2" name="model" style="width: 100%;" autofocus >
+
+
+				  <?php
+                $result = $db->prepare("SELECT * FROM model ");
+		$result->bindParam(':userid', $res);
+		$result->execute();
+		for($i=0; $row = $result->fetch(); $i++){
+	?>
+		<option value="<?php echo $row['name'];?>"><?php echo $row['name']; ?>    </option>
+	<?php
+				}
+			?>
+                </select>
+
+                </div>
+
+
+
+		<div class="form-group">
+                  <div class="radio">
+                    <label>
+            <input type="radio" name="type" id="optionsRadios1" value="Quotations" checked>
+                      Quotations<i class="fa fa-money"></i>
+                    </label>
+                  </div>
+
+
+                </div>
+
+
+
+		</div>
+        </div>
+
+
+
+	</div>
+
 	<input class="btn btn-<?php echo $type_color ?>" type="submit" value=" Print" >
 			</form>
 		<?php } if ($co>0){	?>
 <form method="post" action="save_bill.php">
-	
-		<div class="form-group">
+	<div class="form-group">
                   <div class="radio">
                     <label>
                       <input type="radio" name="type" id="optionsRadios1" value="Cash" checked>
@@ -281,9 +411,8 @@ return false;
                       Card <i class="fa fa-credit-card"></i>
                     </label>
                   </div>
-                  
+
                 </div>
-	
 	<div class="col-md-4">
 	<div class="input-group">
                 <!-- /btn-group -->
@@ -293,17 +422,57 @@ return false;
 			 <input type="hidden" class="form-control" name="invoice" value="<?php echo $invo; ?>"  >
                   <input class="btn btn-info" type="submit" value="Pay and Print" >
                 </div>
-              </div>	
+              </div>
 		</div>
 			</form>
+
+
 		<?php }	?>
             <!-- /.box-body -->
             </div>
           </div>
           <!-- /.box -->
         </div>
+		</div>
+
+	  <br><br>
+				<?php  if ($co>0){	?>
+			<form method="post" action="save_advance.php">
+	<div class="form-group">
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="type" id="optionsRadios1" value="Cash" checked>
+                      Cash <i class="fa fa-money"></i>
+                    </label>
+                  </div>
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="type" id="optionsRadios2" value="Card">
+                      Card <i class="fa fa-credit-card"></i>
+                    </label>
+                  </div>
+
+                </div>
+	<div class="col-md-4">
+	<div class="input-group">
+                <!-- /btn-group -->
+		<div class="input-group-addon">
+                    <label>Advance</label>
+                  </div>
+                <input type="number" class="form-control" name="amount" value=""   >
+		 <div class="input-group-btn">
+
+			 <input type="hidden" class="form-control" name="invoice" value="<?php echo $invo; ?>"  >
+                  <input class="btn btn-info" type="submit" value="save" >
+                </div>
+              </div>
+		</div>
+			</form>
+
+
+		<?php }	?>
         <!-- /.col (right) -->
-      </div>
+
       <!-- /.row -->
     </section>
     <!-- /.content -->
@@ -503,4 +672,3 @@ return false;
 </body>
 
 </html>
-
