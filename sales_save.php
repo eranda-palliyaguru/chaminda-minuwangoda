@@ -19,14 +19,20 @@ $result = $db->prepare("SELECT * FROM product WHERE product_id = '$a1' ");
 			$g = $row['code'];
 			$cost = $row['cost'];
 			$type = $row['type'];
-		    }
+		}
+
+
+
+
 
 if($price>0){
 	$d=$price;
 }
 
 $e=$d/100*$e;
+
 $d=$d-$e;
+
 $profit=$d-$cost;
 $profit=$profit*$f;
 
@@ -39,5 +45,6 @@ $sql = "INSERT INTO sales_list (product_id,name,invoice_no,price,dic,qty,code,pr
 $ql = $db->prepare($sql);
 $ql->execute(array(':a'=>$a1,':b'=>$b,':c'=>$c,':d'=>$d,':e'=>$e,':f'=>$f,':g'=>$g,':pro'=>$profit,':type'=>$type,':type_q'=>$type_q,':date'=>$date));
 header("location: sales.php?id=$c");
+
 
 ?>

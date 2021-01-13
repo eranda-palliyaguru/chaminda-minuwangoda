@@ -3,7 +3,7 @@
 <head>
 	<?php
 		  include("connect.php");
-	
+
 
 			?>
   <meta charset="utf-8">
@@ -28,34 +28,34 @@
 <body onload="window.print() " style=" font-size: 13px; font-family: arial;">
 <?php
 $sec = "1";
-?><meta http-equiv="refresh" content="<?php echo $sec;?>;URL='sales_rp.php?d1=<?php echo $_GET['d1']; ?>&d2=<?php echo $_GET['d2']; ?>'">	
+?><meta http-equiv="refresh" content="<?php echo $sec;?>;URL='sales_rp.php?d1=<?php echo $_GET['d1']; ?>&d2=<?php echo $_GET['d2']; ?>'">
 <div class="wrapper">
   <!-- Main content -->
   <section class="invoice">
 
             <div class="box-body">
 
-    <table id="example1" class="table table-bordered table-striped">
-			  
+							<table id="example1" class="table table-bordered table-striped">
+
                 <thead>
                 <tr>
 					<th>Date</th>
                   <th>Invoice no</th>
 				  <th>Vehicle No</th>
-                  
+
 				  <th>Customer Name</th>
-					
+
 					<th>F/S</th>
-                  
+
 					<th>Labor Cost</th>
                   <th>Part Price</th>
-				  
+
 				  <th>Amount</th>
-                  
+                
                 </tr>
-				
+
                 </thead>
-				
+
                 <tbody>
 				<?php
    $d1=$_GET['d1'];
@@ -65,54 +65,53 @@ $sec = "1";
 				$result->bindParam(':userid', $date);
                 $result->execute();
                 for($i=0; $row = $result->fetch(); $i++){
-				
+
 				$type=$row['type'];
 				$id=$row['invoice_number'];
-				
+
 			?>
                 <tr>
 				  <td><?php echo $row['date'];?></td>
 				  <td><?php echo $row['invoice_number'];?></td>
 				  <td><?php echo $row['vehicle_no'];?></td>
                   <td><?php echo $row['customer_name'];?></td>
-					
+
 					<td><?php if($type=="fs"){ echo "X"; } ;?></td>
-                  
+
 				  <td><?php echo $row['labor_cost'];?></td>
                   <td><?php echo $row['amount']-$row['labor_cost'];?></td>
                   <td><?php echo $row['amount'];?></td>
-				  
-				  
-				  
-				   <?php 
+
+
+
+				   <?php
 					$tot+=$row['amount'];
 					$labor+=$row['amount']-$row['labor_cost'];
 				}
-				
+
 				?>
                 </tr>
-               
-                
+
+
                 </tbody>
                 <tfoot>
-                
-				
+
+
 				<tr>
 					<th></th>
                   <th></th>
 					<th></th>
 					<th>Total </th>
-					
+
 					<th>F/S</th>
-                  
+
                   <th><?php echo $tot-$labor; ?>.00</th>
 				  <th><?php echo $labor; ?>.00</th>
 				  <th><?php echo $tot; ?>.00</th>
-                  
+                  <th></th>
                 </tr>
-				
-				
-				<?php 
+
+				<?php
 					$hold=0;
 					$result = $db->prepare("SELECT sum(amount) FROM expenses_records WHERE  date BETWEEN '$d1' AND '$d2'  ");
 				$result->bindParam(':userid', $date);
@@ -120,15 +119,40 @@ $sec = "1";
                 for($i=0; $row = $result->fetch(); $i++){
 				$ex=$row['sum(amount)'];
 				}
-					
+
 			$result = $db->prepare("SELECT sum(amount) FROM sales WHERE pay_type='Card' and action='active' and date BETWEEN '$d1' AND '$d2'  ");
 				$result->bindParam(':userid', $date);
                 $result->execute();
                 for($i=0; $row = $result->fetch(); $i++){
-				$card_tot=$row['sum(amount)'];
+				$card_tot1=$row['sum(amount)'];
 				}
-					
-					
+
+			$result = $db->prepare("SELECT sum(advance) FROM sales WHERE advance_type='Card' and  date BETWEEN '$d1' AND '$d2'  ");
+				$result->bindParam(':userid', $date);
+                $result->execute();
+                for($i=0; $row = $result->fetch(); $i++){
+				$card_tot2=$row['sum(advance)'];
+				}
+
+			$card_tot=$card_tot2+$card_tot1;
+
+
+
+		$result = $db->prepare("SELECT sum(advance) FROM sales WHERE action='active' and date BETWEEN '$d1' AND '$d2'  ");
+				$result->bindParam(':userid', $date);
+                $result->execute();
+                for($i=0; $row = $result->fetch(); $i++){
+				$advance_x=$row['sum(advance)'];
+				}
+
+		$result = $db->prepare("SELECT sum(advance) FROM sales WHERE  advance_date BETWEEN '$d1' AND '$d2'  ");
+				$result->bindParam(':userid', $date);
+                $result->execute();
+                for($i=0; $row = $result->fetch(); $i++){
+				$advance=$row['sum(advance)'];
+				}
+
+
 	$result1 = $db->prepare("SELECT * FROM hold_amount WHERE date='$d2' ORDER by id DESC limit 0,1 ");
 		$result1->bindParam(':userid', $res);
 		$result1->execute();
@@ -142,36 +166,16 @@ $sec = "1";
 		$hold1=$row1['amount'];
 		$hold_date=$row1['date'];
 		}
-$db_host= 'localhost';
-$db_user		= 'colorb69_1';
-$db_pass		= 'rathunona1.';
-$db_database	= 'colorb69_chamindayamaha1'; 
-
-/* End config */
-
-$db = new PDO('mysql:host='.$db_host.';dbname='.$db_database, $db_user, $db_pass);
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			
-					
-					
-    $result = $db->prepare("SELECT sum(amount) FROM lone_pay WHERE do='0' and date BETWEEN '$d1' AND '$d2'  ");
-				$result->bindParam(':userid', $date);
-                $result->execute();
-                for($i=0; $row = $result->fetch(); $i++){
-				$lon=$row['sum(amount)'];	
-				}
-				include("connect.php");
-					
-					
 					$cash=$tot-$card_tot;
-					$total=$hold1+$cash-$ex+$lon;;
-					
+					$total=$hold1+$advance+$cash-$ex;
+					$total=$total-$advance_x;
+
 					?>
                 </tfoot>
               </table>
 				<div class="row">
-					 <h3>_Total Balance</h3>
-				<div class="col-md-6">	
+					 <h3>Total Balance</h3>
+				<div class="col-md-6">
 				<table id="example1" class="table table-bordered table-striped">
 				<thead>
                 <tr>
@@ -179,11 +183,16 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                   <th>Amount</th>
                 </tr>
 				</thead>
-				
+
 					<tr>
 					<th>Bill Total</th>
                   <th>Rs.<?php echo $tot; ?>.00</th>
                 </tr>
+					<tr>
+					<th>Advance Total</th>
+                  <th>Rs.<?php echo $advance; ?>.00</th>
+                </tr>
+
 					<tr>
 					<th>Card Amount Total</th>
                   <th>Rs.<?php echo $card_tot; ?></th>
@@ -196,12 +205,7 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 					<th>Expenses</th>
                   <th>Rs.<?php echo $ex; ?></th>
                 </tr>
-				<tr>
-					<th>Leasing Payment</th>
-                  <th>Rs.<?php echo $lon; ?></th>
-                </tr>
-					
-					
+
 					<tr>
 					<th>Hold Amount (<?php echo $hold_date; ?>)</th>
                   <th>Rs.<?php echo $hold1; ?>.00</th>
@@ -222,18 +226,18 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 					<th>Balance</th>
                   <th>Rs.<?php echo $total-$hold; ?>.00</th>
                 </tr>
-					
-					
-					
+
+
+
 					<tfoot>
 					</tfoot>
 					</table>
-					
-					
+
+
             </div>
-					
-					<h3>_Expenses</h3>
-					<div class="col-md-6">	
+
+					<h3>Expenses</h3>
+					<div class="col-md-6">
 				<table id="example1" class="table table-bordered table-striped">
 				<thead>
                 <tr>
@@ -247,71 +251,28 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				$result->bindParam(':userid', $date);
                 $result->execute();
                 for($i=0; $row = $result->fetch(); $i++){
-				
+
 			?>
 					<tr>
 					<th><?php echo $row['type']; ?></th>
                   <th>Rs.<?php echo $row['amount']; ?></th>
 				<th><?php echo $row['comment']; ?></th>
                 </tr>
-				<?php } ?>	
-					
-					
+				<?php } ?>
+
+
 					<tfoot>
 					</tfoot>
 					</table>
-					
-					
+
+
             </div>
-								<h3>_Leasing Payment</h3>
-					<div class="col-md-6">	
-				<table id="example1" class="table table-bordered table-striped">
-				<thead>
-                <tr>
-					<th>Name</th>
-                  <th>Amount</th>
-					<th>Cashier</th>
-                </tr>
-				</thead>
-				<?php
-					
-		$db_host= 'localhost';
-$db_user		= 'colorb69_1';
-$db_pass		= 'rathunona1.';
-$db_database	= 'colorb69_chamindayamaha1'; 
 
-/* End config */
 
-$db = new PDO('mysql:host='.$db_host.';dbname='.$db_database, $db_user, $db_pass);
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			
-					
-					
-    $result = $db->prepare("SELECT * FROM lone_pay WHERE do='0' and date BETWEEN '$d1' AND '$d2'  ");
-				$result->bindParam(':userid', $date);
-                $result->execute();
-                for($i=0; $row = $result->fetch(); $i++){
-				
-			?>
-					<tr>
-					<th><?php echo $row['name']; ?></th>
-                  <th>Rs.<?php echo $row['amount']; ?></th>
-				<th><?php echo $row['cashier']; ?></th>
-                </tr>
-				<?php } ?>	
-					
-					
-					<tfoot>
-					</tfoot>
-					</table>
-					
-					
-            </div>	
-				
-				
-				
-				
-				
+
+
+
+
 				</div></div>
   </section>
 </div>

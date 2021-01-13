@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-<?php
+<?php 
 include("head.php");
 include("connect.php");
 ?>
 <body class="hold-transition skin-blue sidebar-mini">
-<?php
+<?php 
 include_once("auth.php");
 $r=$_SESSION['SESS_LAST_NAME'];
 
@@ -26,11 +26,11 @@ include_once("sidebar.php");
     <script src="datepicker.ui.min.js"
         type="text/javascript"></script>
  <script type="text/javascript">
-
+     
 		 $(function(){
         $("#datepicker1").datepicker({ dateFormat: 'yy/mm/dd' });
         $("#datepicker2").datepicker({ dateFormat: 'yy/mm/dd' });
-
+       
     });
 
     </script>
@@ -64,38 +64,38 @@ include_once("sidebar.php");
         <div class="box-header with-border">
           <h3 class="box-title">Sales</h3>
 
-
+          
         <!-- /.box-header -->
 		<div class="form-group">
-
-		<form method="post" action="sales_save1.php">
+              
+		<form method="post" action="sales_save1.php">		
         <div class="box-body">
     <!-- /.box -->
-<div class="form-group">
+<div class="form-group">		
 	<div class="box-body">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-
+                
 				  <div class="input-group">
 				   <div class="input-group-addon">
                     <label>Customer	Name</label>
-
+					   
                   </div>
                 <select class="form-control select2" name="name" style="width: 100%;" autofocus required>
-				  <?php
+				  <?php 
                 $result1 = $db->prepare("SELECT * FROM job WHERE  type='active' ");
 		$result1->bindParam(':userid', $res);
 		$result1->execute();
 		for($i=0; $row1 = $result1->fetch(); $i++){
 			$job_v= $row1['vehicle_no'];
 			$kmmm= $row1['km'];
-
+			
 			 $result = $db->prepare("SELECT * FROM customer WHERE vehicle_no='$job_v' ");
 		$result->bindParam(':userid', $res);
 		$result->execute();
 		for($i=0; $row = $result->fetch(); $i++){
-
+			
 	?>
 		<option value="<?php echo $row['customer_id'];?>"><?php echo $row['customer_name']; ?> <?php echo $row['vehicle_no']; ?> - (<?php echo $kmmm; ?>Km)  </option>
 	<?php
@@ -105,50 +105,50 @@ include_once("sidebar.php");
                   </div>
                   </div>
 				</div>
-
-
-
-
-
-
-
-
-
-
+			  
+			  
+			  
+			  
+			  
+			  
+			  
+			  
+			  
+			  
 			  <div class="col-md-4">
 			  <div class="form-group">
-                <div class="input-group date">
+                <div class="input-group date"> 
 					<div class="input-group-addon">
                     <label>Comment</label>
                   </div>
-                   <input type="text" class="form-control" name="comment" >
-                </div>
+                   <input type="text" class="form-control" name="comment" >				   
+                </div>				
+        </div>		
         </div>
-        </div>
-
-
-
-
-
-
-              </div>
+			 
+			  
+			  
+			  
+			  
+			  
+              </div>        
               </div>
 			  <input class="btn btn-info" type="submit" value="Submit" >
-
+			  
 			  </form>
-
-
-
-
+			
+			
+			
+		
           <!-- /.box -->
 
         </div>
         <!-- /.col (left) -->
+       
 
-
-
+        
             <!-- /.box-body -->
-
+            
             </div>
           </div>
           <!-- /.box -->
@@ -160,44 +160,44 @@ include_once("sidebar.php");
         <div class="box-header with-border">
           <h3 class="box-title">Direct Sales</h3>
 
-
+          
         <!-- /.box-header -->
 		<div class="form-group">
-
-		<form method="post" action="sales_save2.php">
+              
+		<form method="post" action="sales_save2.php">		
         <div class="box-body">
     <!-- /.box -->
-<div class="form-group">
+<div class="form-group">		
 	<div class="box-body">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-
+                
 				  <div class="input-group">
 				   <div class="input-group-addon">
                     <label>Vehicle No</label>
-
+					   
                   </div>
 <input type="text" name="vehicle_no"  class="form-control" data-inputmask='"mask": "AAA-9999"' data-mask required>
                   </div>
                   </div>
 				</div>
-
-
+			  
+			  
 			  <div class="col-md-4">
 			  <div class="form-group">
-
+               
 
                 <div class="input-group">
-
-
+                  
+                  
 					<div class="input-group-addon">
                     <label>Model</label>
-
+					   
                   </div>
                 <select class="form-control select2" name="model" style="width: 100%;" autofocus >
-
-
+                  
+                  
 				  <?php
                 $result = $db->prepare("SELECT * FROM model ");
 		$result->bindParam(':userid', $res);
@@ -210,80 +210,90 @@ include_once("sidebar.php");
 			?>
                 </select>
                 </div>
-
+				
         </div>
-
+		
         </div>
-
-
-
-
-
+			  
+			  
+			  
+			  
+			  
 			  <input type="hidden" value="Normal Service" name="type">
-
+			  
 			  <div class="col-md-4">
 			  <div class="form-group">
-                <div class="input-group date">
+                <div class="input-group date"> 
 					<div class="input-group-addon">
                     <label>Comment</label>
                   </div>
-                   <input type="text" class="form-control" name="comment" >
-                </div>
-        </div>
+                   <input type="text" class="form-control" name="comment" >				   
+                </div>				
+        </div>		
         </div>
 			 <div class="col-md-6">
               <div class="form-group">
-
+                
 				  <div class="input-group">
 				    <input type="number" class="form-control" name="km" >
 				   <div class="input-group-addon">
                     <label>Km</label>
                   </div>
-
-
+					  
+					  
                   </div>
                   </div>
-				</div>
-
-              </div>
+				</div>  
+			  
+			  
+			  
+              </div>        
               </div>
 			  <input class="btn btn-danger" type="submit" value="Submit" >
-
+			  
 			  </form>
+			
+			
+			
+		
           <!-- /.box -->
+
         </div>
         <!-- /.col (left) -->
-          <!-- /.box-body -->
+       
 
+        
+            <!-- /.box-body -->
+            
             </div>
           </div>
-			<form method="post" action="sales_save3.php">
+			<form method="post" action="sales_save3.php">		
         <div class="box-body">
     <!-- /.box -->
-<div class="form-group">
+<div class="form-group">		
 	<div class="box-body">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-
+                
 				  <div class="input-group">
 				   <div class="input-group-addon">
                     <label>Vehicle No.</label>
-
+					   
                   </div>
 <input type="text" name="vehicle_no"  class="form-control" data-inputmask='"mask": "AAA-9999"' data-mask required>
 			<div class="input-group-btn">
                    <input class="btn btn-primary" type="submit" value="Go to Shop Sales" >
-
+					   
                   </div>
                   </div>
                   </div>
 				</div>
 		</div>
               </div>
-
+			    
 			  </form>
-
+		
 		<?php
 include("csv4.php");
 $csv = new csv();
@@ -292,29 +302,29 @@ if (isset($_POST['sub'])) {
 	$csv->inport($_FILES ['file']['tmp_name']);
 }
 
-
+			
 			echo "<br>";
-
+			
 $ip = "1992/1/15";
     $split = explode("/", $ip);
     $y= $split[0];
 			$m= $split[1];
 			$d= $split[2];
-
+			
 			$f=$d."-".$m."-".$y;
 			echo $f;
 ?>
     </section>
-
-
-
-
-
-
-
+	  
+	  
+	  
+	  
+	  
+	  
+	  
     <!-- /.content -->
   </div>
-
+  
   <!-- /.content-wrapper -->
     <?php
   include("dounbr.php");

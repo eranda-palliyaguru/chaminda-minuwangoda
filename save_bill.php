@@ -5,7 +5,7 @@ $a1 = $_POST['invoice'];
 $ar = $_POST['amount'];
 $type = $_POST['type'];
 //$c = $_POST['cus_name'];
-date_default_timezone_set("Asia/Colombo");
+date_default_timezone_set("Asia/Colombo"); 
 
 $act=1;
 $sql = "UPDATE sales_list 
@@ -18,9 +18,7 @@ $result = $db->prepare("SELECT sum(price) FROM sales_list WHERE invoice_no = '$a
 		$result->bindParam(':userid', $res);
 		$result->execute();
 		for($i=0; $row = $result->fetch(); $i++){
-            $a = $row['sum(price)'];
-			
-			
+            $a = $row['sum(price)'];	
 		}
 
 
@@ -72,6 +70,7 @@ $q->execute(array($qty,$id));
 		}
 
 
+
 $result = $db->prepare("SELECT * FROM hold_amount WHERE date_sum='' ORDER by id DESC limit 0,1 ");
 		$result->bindParam(':userid', $res);
 		$result->execute();
@@ -85,7 +84,6 @@ $sql = "UPDATE hold_amount
 $q = $db->prepare($sql);
 $q->execute(array($hold_date,$hold_id));
 		}
-
 $result = $db->prepare("SELECT * FROM hold_amount WHERE date_sum='$hold_date' and date='$hold_date' ORDER by id DESC limit 0,1 ");
 		$result->bindParam(':userid', $res);
 		$result->execute();
@@ -101,16 +99,36 @@ $q->execute(array($hold_date1,$hold_id));
 		}
 
 
+$result1 = $db->prepare("SELECT * FROM sales WHERE invoice_number='$a1' ");
+		$result1->bindParam(':userid', $a1);
+		$result1->execute();
+		for($i=0; $row1 = $result1->fetch(); $i++){
+		$job_no=$row1['job_no'];	
+		}
 
+$result1 = $db->prepare("SELECT * FROM job WHERE id='$job_no' ");
+		$result1->bindParam(':userid', $a1);
+		$result1->execute();
+		for($i=0; $row1 = $result1->fetch(); $i++){
+		$mechanic_id=$row1['mechanic_id'];	
+		}
 
+$result1 = $db->prepare("SELECT * FROM mechanic WHERE id='$mechanic_id' ");
+		$result1->bindParam(':userid', $a1);
+		$result1->execute();
+		for($i=0; $row1 = $result1->fetch(); $i++){
+		$mechanic=$row1['name'];	
+		}
+//$mechanic_id=1;
 
 
 $b = $ar-$a;
 $c = "active";
+$date=date("Y-m-d");
 // query
-$sql = "UPDATE  sales SET amount=?,balance=?,action=?,profit=?,labor_cost=?,pay_type=? WHERE invoice_number=?";
+$sql = "UPDATE  sales SET amount=?,balance=?,action=?,profit=?,labor_cost=?,pay_type=?,date=?,mechanic_id=?,mechanic=? WHERE invoice_number=?";
 $ql = $db->prepare($sql);
-$ql->execute(array($a,$b,$c,$profit,$labor_cost,$type,$a1));
+$ql->execute(array($a,$b,$c,$profit,$labor_cost,$type,$date,$mechanic_id,$mechanic,$a1));
 
 $result1 = $db->prepare("SELECT * FROM sales WHERE invoice_number='$a1' ");
 		$result1->bindParam(':userid', $a1);
@@ -118,7 +136,12 @@ $result1 = $db->prepare("SELECT * FROM sales WHERE invoice_number='$a1' ");
 		for($i=0; $row1 = $result1->fetch(); $i++){
 		$vehicle_no=$row1['vehicle_no'];	
 		}
-
+$job_type="Close";
+$sql = "UPDATE job 
+        SET type=?
+		WHERE vehicle_no=?";
+$q = $db->prepare($sql);
+$q->execute(array($job_type,$vehicle_no));
 
 
         $result = $db->prepare("SELECT * FROM customer WHERE vehicle_no='$vehicle_no' ");
