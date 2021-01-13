@@ -2,44 +2,47 @@
 
 <html>
 
-<?php 
-
-
+<?php
 
 include("head.php");
-
 include("connect.php");
 
 ?>
 
+
+<script src="https://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+<script>
+
+$(document).ready(function(){
+	setInterval(function(){
+		$("#screen").load('index_job.php')
+
+	}, 2000);
+});
+
+$(document).ready(function(){
+	setInterval(function(){
+		$("#job_cancel").load('index_cancel_appr.php')
+    }, 5000);
+});
+
+</script>
+
+
 <body class="hold-transition skin-blue sidebar-mini">
 
-<?php 
+<?php
 
 include_once("auth.php");
-
 $r=$_SESSION['SESS_LAST_NAME'];
-
-
-
-if($r =='Cashier'){
-
-
-
-include_once("sidebar2.php");
-
+if($r =='mechanic'){
+header("location: job.php");
 }
-
 if($r =='admin'){
-
-
-
 include_once("sidebar.php");
-
 }
-
-
 //header("location: 404.php");
+
 ?>
 
 
@@ -68,7 +71,7 @@ include_once("sidebar.php");
 
       </h1>
 
-      
+
 
     </section>
 
@@ -80,9 +83,9 @@ include_once("sidebar.php");
 
 
 
-	
 
-	
+
+
 
 	<?php
 
@@ -94,13 +97,13 @@ include_once("sidebar.php");
 
 
 
-                  $date =  date("Y-m-d");					
+                  $date =  date("Y-m-d");
 
-			
+
 
 				$result = $db->prepare("SELECT sum(profit) FROM sales WHERE action='active' AND  date='$date' ");
 
-				
+
 
 					$result->bindParam(':userid', $date);
 
@@ -108,13 +111,13 @@ include_once("sidebar.php");
 
                 for($i=0; $row = $result->fetch(); $i++){
 
-				  
+
 
 				  $profit=$row['sum(profit)'];
 
 				}
 
-				
+
 
 
 
@@ -124,7 +127,7 @@ include_once("sidebar.php");
 
 $result = $db->prepare("SELECT sum(amount) FROM sales WHERE  action='active' AND  date='$date'  ");
 
-				
+
 
 					$result->bindParam(':userid', $date);
 
@@ -132,18 +135,18 @@ $result = $db->prepare("SELECT sum(amount) FROM sales WHERE  action='active' AND
 
                 for($i=0; $row = $result->fetch(); $i++){
 
-				  
+
 
 				  $amount=$row['sum(amount)'];
 
-				}		
+				}
 				$result = $db->prepare("SELECT sum(amount) FROM sales WHERE  action='active' AND  date='$date' AND customer_name='Unknown customer' ");
 					$result->bindParam(':userid', $date);
                 $result->execute();
                 for($i=0; $row = $result->fetch(); $i++){
 				  $dr_amount=$row['sum(amount)'];
 
-				}	
+				}
 
 $result = $db->prepare("SELECT sum(amount) FROM expenses_records WHERE  date = '$date' ");
 				$result->bindParam(':userid', $date);
@@ -155,63 +158,73 @@ $result = $db->prepare("SELECT sum(amount) FROM expenses_records WHERE  date = '
 
 		$month1=date("Y-m-01");
 		$month2=date("Y-m-31");
-		
+
 		$result = $db->prepare("SELECT * FROM model ");
 				$result->bindParam(':userid', $date);
                 $result->execute();
                 for($i=0; $row = $result->fetch(); $i++){
 				$model_name=$row['name'];
 					$model_id=$row['id'];
-				
+
 				$result1 = $db->prepare("SELECT sum(amount) FROM sales WHERE  model='$model_name' AND  date BETWEEN '$month1' AND '$month2' ");
 					$result1->bindParam(':userid', $date);
                 $result1->execute();
                 for($i=0; $row1 = $result1->fetch(); $i++){
 				  $model_amount=$row1['sum(amount)'];
 				}
-$sql = "UPDATE model 
+$sql = "UPDATE model
         SET amount=?
 		WHERE id=?";
 $q = $db->prepare($sql);
 $q->execute(array($model_amount,$model_id));
-				
+
 				}
-		
-		
+
+
 		$result1 = $db->prepare("SELECT sum(amount) FROM model ");
 					$result1->bindParam(':userid', $date);
                 $result1->execute();
                 for($i=0; $row1 = $result1->fetch(); $i++){
 				  $month_amount=$row1['sum(amount)'];
 				}
-		
-		
+		date_default_timezone_set("Asia/Colombo");
+		$date=date("Y-m-d");
+		$result = $db->prepare("SELECT count(id) FROM job WHERE  date='$date' ORDER by id DESC ");
+				$result->bindParam(':userid', $date);
+                $result->execute();
+                for($i=0; $row = $result->fetch(); $i++){
+				$job_count=$row['count(id)'];
+				}
 
-				date_default_timezone_set("Asia/Colombo");
+
+
+
+
+
 
 				$date=date("Y-m-d");
 
 			?>
 
-	
 
-	
 
-	
 
-	
 
-	
+
+
+
+
+
 
 	 <div class="row">
 
-	 
 
-	 
 
-	 
 
-	 
+
+
+
+
 
 	 <?php     $r=$_SESSION['SESS_LAST_NAME'];
 
@@ -221,7 +234,7 @@ if($r =='Cashier'){
 
 	?>
 
-	
+
 
 <?php }
 
@@ -231,13 +244,13 @@ else{
 
  ?>
 
-	 
 
-	 
 
-	 
 
-	 
+
+
+
+
 
         <div class="col-lg-3 col-xs-6">
 
@@ -328,47 +341,201 @@ else{
         </div>
 
         <!-- ./col -->
-
         <div class="col-lg-3 col-xs-6">
-
           <!-- small box -->
-
           <div class="small-box bg-red">
-
             <div class="inner">
-
-              <h3>65</h3>
-
+              <h3><?php echo $job_count; ?></h3>
 
 
-              <p>Unique Visitors</p>
 
+              <p>Total Visitors</p>
             </div>
-
             <div class="icon">
-
-              <i class="ion ion-pie-graph"></i>
-
+              <i class="ion ion-hammer"></i>
             </div>
-
             <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
-
           </div>
-
         </div>
-
         <!-- ./col -->
 
       </div>
 
-	<?php 
+	<?php
 
 }
 
  ?>
 
+	<div id="job_cancel"></div>
+
+
 <div class="row">
+
+
+		<div class="col-md-12">
+ <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Latest JOB Orders</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+
+            <!-- /.box-header -->
+            <div id="screen"></div>
+
+
+	 </div></div>
+
+
 	<div class="col-md-6">
+ <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">Latest JOB Orders</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="table-responsive">
+                <table class="table no-margin">
+                  <thead>
+                  <tr>
+                    <th >Vehicle No.</th>
+                    <th >Mileage</th>
+                    <th>Time</th>
+					  <th>Type</th>
+					  <th>Profile</th>
+
+                  </tr>
+                  </thead>
+                  <tbody>
+					  <?php
+			$result = $db->prepare("SELECT * FROM job WHERE type='active' ORDER by id DESC ");
+				$result->bindParam(':userid', $date);
+                $result->execute();
+                for($i=0; $row = $result->fetch(); $i++){
+					$date=$row['date'];
+					$ramp=$row['ramp'];
+
+
+					if($ramp==""){ $color_ramp="yellow"; $info="Waiting"; }
+					if($ramp>0){ $color_ramp="blue"; $info="Ramp No.".$ramp; }
+					if($ramp=="out"){ $color_ramp="green"; $info="Washing"; }
+
+
+
+
+					$date1=date("Y-m-d");
+					if($date==$date1){
+					$time=$row['time'];
+
+
+			$split = explode(".", $time);
+            $hh = $split[0];
+			$hh1=date("H");
+						$h=$hh1-$hh;
+
+			if($h==0){
+				$split = explode(".", $time);
+			    $m = $split[1];
+				$m1= date("i");
+				$time_on=$m1-$m;
+
+			$time_type="minute";
+			}else{
+			$time_on=$h;
+			$time_type="hours";
+			}
+
+
+
+					}else{
+				  $sday= strtotime( $date);
+                  $nday= strtotime($date1);
+                  $tdf= abs($nday-$sday);
+                  $nbday1= $tdf/86400;
+                  $time_on= intval($nbday1);
+						$time_type="Day";
+					}
+
+
+					if($time_type=="minute"){ $color="green"; }
+					if($time_type=="Day"){ $color="red";  }
+					if($time_type=="hours"){ $color="blue";
+					     if($time_on>4){ $color="yellow"; }	 }
+
+					$vehicle=$row['vehicle_no'];
+					$idi=0;
+					$result1 = $db->prepare("SELECT * FROM customer WHERE vehicle_no='$vehicle'");
+				$result1->bindParam(':userid', $date);
+                $result1->execute();
+                for($i=0; $row1 = $result1->fetch(); $i++){
+				$idi=$row1['customer_id'];
+				}
+
+					  ?>
+                  <tr>
+                    <td><?php echo $row['vehicle_no'];?></td>
+                    <td><?php echo $row['km'];?></td>
+                    <td><span class="badge bg-<?php echo $color;?>"><i class="fa fa-clock-o"></i> <?php echo $time_on." ".$time_type;?></span></td>
+
+					  <td><span class="badge bg-<?php echo $color_ramp;?>"><?php echo $info;?></span></td>
+
+
+					  <td><?php if($idi>1){ ?>
+						  <a href="profile.php?id=<?php echo $idi; ?>" >
+					  <button class="btn btn-success"><i class="glyphicon glyphicon-user"></i></button></a>
+						  <?php }else{ ?>
+						   <a href="cus.php" >
+					  <button class="btn btn-info"><i class="glyphicon glyphicon-user">+</i></button></a>
+						  <?php } ?></td>
+                  </tr>
+                  <?php } $date=date("Y-m-d");
+					  $result = $db->prepare("SELECT * FROM job WHERE type='Close' and date='$date' ORDER by id DESC ");
+				$result->bindParam(':userid', $date);
+                $result->execute();
+                for($i=0; $row = $result->fetch(); $i++){
+
+
+					  ?>
+
+					  <tr class="alert alert-general record" style="color: #f56954; ">
+                    <td><?php echo $row['vehicle_no'];?></td>
+                    <td><?php echo $row['km'];?></td>
+                    <td><span class="badge bg-green"><i class="fa fa-clock-o"></i> <?php echo $row['type']; ?></span></td>
+
+					   <td><span class="badge bg-green"><i class="fa fa-clock-o"></i> <?php echo $row['type']; ?></span></td>
+
+					  <td>
+						  <a href="profile.php?id=<?php echo $idi; ?>" >
+					  <button class="btn btn-info"><i class="glyphicon glyphicon-user"></i></button></a></td>
+
+                  </tr>
+                  <?php } ?>
+                  </tbody>
+
+                </table>
+              </div>
+              <!-- /.table-responsive -->
+
+            </div>
+
+
+	 </div></div>
+
+
+
+
+	  <div class="col-md-6">
  <div class="box box-info">
             <div class="box-header with-border">
               <h3 class="box-title">Latest Orders</h3>
@@ -388,7 +555,7 @@ else{
                     <th width="20%">Model</th>
                     <th width="50%">Percentage</th>
                     <th>Amount</th>
-                   
+
                   </tr>
                   </thead>
                   <tbody>
@@ -397,45 +564,51 @@ else{
 				$result->bindParam(':userid', $date);
                 $result->execute();
                 for($i=0; $row = $result->fetch(); $i++){
-					  
+
 					if($i==0){ $color="green"; $color1="success"; }
-					if($i==1){ $color="blue"; $color1="info (2)"; }
-					if($i==2){ $color="aqua"; $color1="info"; }
-					if($i==3){ $color="yellow"; $color1="warning"; }
-					if($i==4){ $color="red"; $color1="danger"; }
-					
-					
-					
+					if($i==1){ $color="yellow"; $color1="warning"; }
+					if($i==2){ $color="red"; $color1="danger"; }
+					if($i==3){ $color="blue"; $color1="info (2)"; }
+					if($i==4){ $color="aqua"; $color1="info"; }
+
+
+
+
 $h1=$month_amount;
 $h2=$row['amount'];
 $h3=$h1/100;
 $h41=$h2/$h3;
 $h41=number_format($h41,1);
-					
+
 					  ?>
                   <tr>
                     <td><img style="width: 110px"  src="<?php echo $row['parth'];?>" >
 					  <?php echo $row['name'];?>
-					  
+
 					  </td>
                     <td><div class="progress progress active">
 						<div class="progress-bar progress-bar-<?php echo $color;?> progress-bar-striped" style="width: <?php echo $h41;?>%"></div></div></td>
                     <td><span class="badge bg-<?php echo $color;?>"><?php echo $h41;?>%</span>
 					  <span class="badge bg-">Rs.<?php echo $row['amount'];?></span></td>
-                   
+
                   </tr>
                   <?php } ?>
                   </tbody>
-					
+
                 </table>
               </div>
               <!-- /.table-responsive -->
-				
+
             </div>
-	 
-	 
-	 </div></div></div>
-	
+
+
+	 </div></div>
+
+
+
+
+	  </div>
+
 
       <!-- SELECT2 EXAMPLE -->
 
@@ -447,13 +620,13 @@ $h41=number_format($h41,1);
 
 
 
-		  
 
-		  
 
-		  
 
-		  
+
+
+
+
 
           <div class="chart">
 
@@ -463,33 +636,33 @@ $h41=number_format($h41,1);
 
 		 <!-- Main content -->
 
-		
 
-		
 
-		
 
-		  </div>
+
+
 
 		  </div>
 
-		
+		  </div>
 
-		
 
-		
 
-		
 
-		
 
-		
 
-		
 
-		
 
-	
+
+
+
+
+
+
+
+
+
+
 
   </div>
 
@@ -631,7 +804,7 @@ $h41=number_format($h41,1);
 
           pointHighlightStroke: "rgba(60,141,188,1)",
 
-          data: [<?php  echo $m1; ?>, <?php  echo $m2; ?>, <?php  echo $m3; ?>, <?php  echo $m4; ?>, <?php  echo $m5; ?>, <?php  echo $m6; ?>, <?php  echo $m7; ?>, <?php  echo $m8; ?>, <?php  echo $m9; ?>, <?php  echo $m10; ?>, <?php  echo $m11; ?>, <?php  echo $m12; ?>] 
+          data: [<?php  echo $m1; ?>, <?php  echo $m2; ?>, <?php  echo $m3; ?>, <?php  echo $m4; ?>, <?php  echo $m5; ?>, <?php  echo $m6; ?>, <?php  echo $m7; ?>, <?php  echo $m8; ?>, <?php  echo $m9; ?>, <?php  echo $m10; ?>, <?php  echo $m11; ?>, <?php  echo $m12; ?>]
 
         }
 
@@ -972,4 +1145,3 @@ $h41=number_format($h41,1);
 </body>
 
 </html>
-
