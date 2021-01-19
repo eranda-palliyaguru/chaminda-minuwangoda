@@ -51,7 +51,7 @@ $sec = "1";
                   <th>Part Price</th>
 
 				  <th>Amount</th>
-                
+
                 </tr>
 
                 </thead>
@@ -212,7 +212,7 @@ $sec = "1";
                 </tr>
 					<tr>
 					<th>Total</th>
-                  <th>Rs.<?php echo $total; ?>.00</th>
+                  <th>Rs.<?php echo $total=$total=$advance; ?>.00</th>
                 </tr>
 					<tr>
 					<th>-</th>
